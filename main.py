@@ -9,7 +9,7 @@ data = {"total": 0}
 def whatsapp():
     global data
 
-    msg = request.form.get('Body').strip()  # texto da mensagem
+    msg = request.form.get('Body').strip()
     numero = request.form.get('From')
     resp = MessagingResponse()
 
