@@ -1,6 +1,6 @@
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
-import json
+import re
 
 app = Flask(__name__)
 data = {"total": 0}
@@ -9,20 +9,19 @@ data = {"total": 0}
 def whatsapp():
     global data
 
-    msg = request.form.get('Body') 
+    msg = request.form.get('Body').strip()  # texto da mensagem
     numero = request.form.get('From')
     resp = MessagingResponse()
 
-    try:
-        gasto = float(msg)
+    # Expressão regular para capturar um número decimal no final da mensagem
+    match = re.search(r'(\d+(\.\d{1,2})?)$', msg)
+
+    if match:
+        gasto = float(match.group(1))
         data['total'] += gasto
-        resp.message(f"*✅Gasto adicionado: R${gasto:.2f}*\n*💸 Total acumulado: R${data['total']:.2f}*")
-
-        # with open('gastos.json', 'w') as f:
-        #    json.dump(data, f)
-
-    except:
-        resp.message("❌ Envie apenas o valor do gasto. Exemplo: 25.50")
+        resp.message(f"*✅ Gasto adicionado: R${gasto:.2f}*\n*💸 Total acumulado: R${data['total']:.2f}*")
+    else:
+        resp.message("❌ Envie a descrição seguida do valor. Exemplo: Uber 25.60")
 
     return str(resp)
 
